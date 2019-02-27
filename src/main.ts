@@ -1,4 +1,4 @@
-import {vec3} from 'gl-matrix';
+import {vec3, mat4} from 'gl-matrix';
 import * as Stats from 'stats-js';
 import * as DAT from 'dat-gui';
 import Square from './geometry/Square';
@@ -7,6 +7,10 @@ import OpenGLRenderer from './rendering/gl/OpenGLRenderer';
 import Camera from './Camera';
 import {setGL} from './globals';
 import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
+
+// L-System specific imports
+import ExpansionRules from './lsystem/ExpansionRules';
+import LSystem from './lsystem/LSystem';
 
 // Define an object with application parameters and button callbacks
 // This will be referred to by dat.GUI's functions that add GUI elements.
@@ -28,25 +32,73 @@ function loadScene() {
   // offsets and gradiated colors for a 100x100 grid
   // of squares, even though the VBO data for just
   // one square is actually passed to the GPU
-  let offsetsArray = [];
-  let colorsArray = [];
-  let n: number = 100.0;
-  for(let i = 0; i < n; i++) {
-    for(let j = 0; j < n; j++) {
-      offsetsArray.push(i);
-      offsetsArray.push(j);
-      offsetsArray.push(0);
+  // let offsetsArray = [];
+  // let colorsArray = [];
+  // let n: number = 100.0;
+  // for(let i = 0; i < n; i++) {
+  //   for(let j = 0; j < n; j++) {
+  //     offsetsArray.push(i);
+  //     offsetsArray.push(j);
+  //     offsetsArray.push(0);
 
-      colorsArray.push(i / n);
-      colorsArray.push(j / n);
-      colorsArray.push(1.0);
-      colorsArray.push(1.0); // Alpha channel
-    }
+  //     colorsArray.push(i / n);
+  //     colorsArray.push(j / n);
+  //     colorsArray.push(1.0);
+  //     colorsArray.push(1.0); // Alpha channel
+  //   }
+  // }
+  // let offsets: Float32Array = new Float32Array(offsetsArray);
+  // let colors: Float32Array = new Float32Array(colorsArray);
+  // square.setInstanceVBOs(offsets, colors);
+  // square.setNumInstances(n * n); // grid of "particles"
+
+  // Start of L System
+  let ls: LSystem = new LSystem(new ExpansionRules());
+  let transformations: mat4[] = ls.draw(4);
+  let colorsArray = [];
+  let col1Array = [];
+  let col2Array = [];
+  let col3Array = [];
+  let col4Array = [];
+  for (let i = 0; i < transformations.length; i++) {
+    let currTransform = transformations[i];
+
+    // push column vectors back
+    col1Array.push(currTransform[0]);
+    col1Array.push(currTransform[1]);
+    col1Array.push(currTransform[2]);
+    col1Array.push(currTransform[3]);
+
+    col2Array.push(currTransform[4]);
+    col2Array.push(currTransform[5]);
+    col2Array.push(currTransform[6]);
+    col2Array.push(currTransform[7]);
+
+    col3Array.push(currTransform[8]);
+    col3Array.push(currTransform[9]);
+    col3Array.push(currTransform[10]);
+    col3Array.push(currTransform[11]);
+
+    col4Array.push(currTransform[12]);
+    col4Array.push(currTransform[13]);
+    col4Array.push(currTransform[14]);
+    col4Array.push(currTransform[15]);
+
+    // push colors back
+    colorsArray.push(1);
+    colorsArray.push(1);
+    colorsArray.push(1);
+    colorsArray.push(1);
   }
-  let offsets: Float32Array = new Float32Array(offsetsArray);
+
+  let col1: Float32Array = new Float32Array(col1Array);
+  let col2: Float32Array = new Float32Array(col2Array);
+  let col3: Float32Array = new Float32Array(col3Array);
+  let col4: Float32Array = new Float32Array(col4Array);
   let colors: Float32Array = new Float32Array(colorsArray);
-  square.setInstanceVBOs(offsets, colors);
-  square.setNumInstances(n * n); // grid of "particles"
+  square.setInstanceVBOsTest(col1, col2, col2, col4, colors);
+  square.setNumInstances(transformations.length); // grid of "particles"
+
 }
 
 function main() {
@@ -74,7 +126,7 @@ function main() {
   // Initial call to load scene
   loadScene();
 
-  const camera = new Camera(vec3.fromValues(50, 50, 10), vec3.fromValues(50, 50, 0));
+  const camera = new Camera(vec3.fromValues(0, 50, 0), vec3.fromValues(0, 0, 0));
 
   const renderer = new OpenGLRenderer(canvas);
   renderer.setClearColor(0.2, 0.2, 0.2, 1);
