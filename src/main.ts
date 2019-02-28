@@ -41,16 +41,16 @@ function loadScene() {
   screenQuad.create();
 
   // LOAD FROM OBJ FILE
-  let cylinderString: string = readTextFile("/resources/obj/cylinder.obj");
+  let cylinderString: string = readTextFile("https://raw.githubusercontent.com/jwang5675/hw04-l-systems/master/resources/obj/cylinder.obj");
   cylinder = new Mesh(cylinderString, vec3.fromValues(0, 0, 0));
   cylinder.create();
 
-  let sphereString: string = readTextFile("/resources/obj/sphere.obj");
+  let sphereString: string = readTextFile("https://raw.githubusercontent.com/jwang5675/hw04-l-systems/master/resources/obj/sphere.obj");
   sphere = new Mesh(sphereString, vec3.fromValues(0, 0, 0));
   sphere.create();
 
   // Setup Pot VBO
-  let potString: string = readTextFile("../resources/obj/pot.obj");
+  let potString: string = readTextFile("https://raw.githubusercontent.com/jwang5675/hw04-l-systems/master/resources/obj/pot.obj");
   pot = new Mesh(potString, vec3.fromValues(0, 0, 0));
   pot.create();
   let colorsArray: number[] = [1, 1, 1, 1];

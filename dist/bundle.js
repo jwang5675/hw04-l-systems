@@ -6112,14 +6112,14 @@ function loadScene() {
     screenQuad = new __WEBPACK_IMPORTED_MODULE_4__geometry_ScreenQuad__["a" /* default */]();
     screenQuad.create();
     // LOAD FROM OBJ FILE
-    let cylinderString = Object(__WEBPACK_IMPORTED_MODULE_8__globals__["b" /* readTextFile */])("/resources/obj/cylinder.obj");
+    let cylinderString = Object(__WEBPACK_IMPORTED_MODULE_8__globals__["b" /* readTextFile */])("https://raw.githubusercontent.com/jwang5675/hw04-l-systems/master/resources/obj/cylinder.obj");
     cylinder = new __WEBPACK_IMPORTED_MODULE_5__geometry_Mesh__["a" /* default */](cylinderString, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec3 */].fromValues(0, 0, 0));
     cylinder.create();
-    let sphereString = Object(__WEBPACK_IMPORTED_MODULE_8__globals__["b" /* readTextFile */])("/resources/obj/sphere.obj");
+    let sphereString = Object(__WEBPACK_IMPORTED_MODULE_8__globals__["b" /* readTextFile */])("https://raw.githubusercontent.com/jwang5675/hw04-l-systems/master/resources/obj/sphere.obj");
     sphere = new __WEBPACK_IMPORTED_MODULE_5__geometry_Mesh__["a" /* default */](sphereString, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec3 */].fromValues(0, 0, 0));
     sphere.create();
     // Setup Pot VBO
-    let potString = Object(__WEBPACK_IMPORTED_MODULE_8__globals__["b" /* readTextFile */])("../resources/obj/pot.obj");
+    let potString = Object(__WEBPACK_IMPORTED_MODULE_8__globals__["b" /* readTextFile */])("https://raw.githubusercontent.com/jwang5675/hw04-l-systems/master/resources/obj/pot.obj");
     pot = new __WEBPACK_IMPORTED_MODULE_5__geometry_Mesh__["a" /* default */](potString, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec3 */].fromValues(0, 0, 0));
     pot.create();
     let colorsArray = [1, 1, 1, 1];
