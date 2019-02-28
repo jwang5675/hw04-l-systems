@@ -67,7 +67,7 @@ function loadScene() {
   pot.setNumInstances(1);
 
   // Setup dirt VBO
-  let dirtString: string = readTextFile("../resources/obj/dirt.obj");
+  let dirtString: string = readTextFile("https://raw.githubusercontent.com/jwang5675/hw04-l-systems/master/resources/obj/dirt.obj");
   dirt = new Mesh(dirtString, vec3.fromValues(0, 0, 0));
   dirt.create();
   let dirtColorArray: number[] = [0.484, 0.367, 0.258, 1];
