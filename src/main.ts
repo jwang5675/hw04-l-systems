@@ -31,6 +31,8 @@ const controls = {
 let square: Square;
 let screenQuad: ScreenQuad;
 let cylinder: Mesh;
+let pot: Mesh;
+let dirt: Mesh;
 let time: number = 0.0;
 
 function loadScene() {
@@ -43,6 +45,32 @@ function loadScene() {
   let cylinderString: string = readTextFile("../resources/obj/cylinder.obj");
   cylinder = new Mesh(cylinderString, vec3.fromValues(0, 0, 0));
   cylinder.create();
+
+  // Setup Pot VBO
+  let potString: string = readTextFile("../resources/obj/pot.obj");
+  pot = new Mesh(potString, vec3.fromValues(0, 0, 0));
+  pot.create();
+  let colorsArray = [1, 1, 1, 1];
+  let col1Array = [10, 0, 0, 0];
+  let col2Array = [0, 10, 0, 0];
+  let col3Array = [0, 0, 10, 0];
+  let col4Array = [6, -8.5, 0, 1];
+  let col1: Float32Array = new Float32Array(col1Array);
+  let col2: Float32Array = new Float32Array(col2Array);
+  let col3: Float32Array = new Float32Array(col3Array);
+  let col4: Float32Array = new Float32Array(col4Array);
+  let colors: Float32Array = new Float32Array(colorsArray);
+  pot.setInstanceVBOsTransform(col1, col2, col3, col4, colors);
+  pot.setNumInstances(1);
+
+  // Setup dirt VBO
+  let dirtString: string = readTextFile("../resources/obj/dirt.obj");
+  dirt = new Mesh(dirtString, vec3.fromValues(0, 0, 0));
+  dirt.create();
+  let dirtColorArray = [0.484, 0.367, 0.258, 1];
+  colors = new Float32Array(dirtColorArray);
+  dirt.setInstanceVBOsTransform(col1, col2, col3, col4, colors);
+  dirt.setNumInstances(1);
 }
 
 function createLSystem() {
@@ -160,7 +188,7 @@ function main() {
   // Initial call to load scene
   loadScene();
 
-  const camera = new Camera(vec3.fromValues(0, 35, 70), vec3.fromValues(0, 35, 0));
+  const camera = new Camera(vec3.fromValues(15, 20, 100), vec3.fromValues(15, 25, 0));
 
   const renderer = new OpenGLRenderer(canvas);
   renderer.setClearColor(0.2, 0.2, 0.2, 1);
@@ -191,6 +219,8 @@ function main() {
     renderer.render(camera, instancedShader, [
       square,
       cylinder,
+      pot,
+      dirt,
     ]);
     stats.end();
 

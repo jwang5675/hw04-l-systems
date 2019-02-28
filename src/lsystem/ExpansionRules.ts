@@ -3,26 +3,27 @@ class ExpansionRules {
   grammar : Map<string, any> = new Map();
 
   constructor() {
-    this.axiom = "XBL";
-    this.grammar.set("F", this.expandF);
-    this.grammar.set("X", this.expandX);
-    this.grammar.set("B", this.expandB);
-    this.grammar.set("L", this.expandL);
+    this.axiom = "F*XBL";
+    this.grammar.set("F", this.expandForward);
+    this.grammar.set("X", this.expandRecursively);
+    this.grammar.set("B", this.expandUpward);
+    this.grammar.set("L", this.expandLeaf);
   }
 
-  expandF() {
-    return "FF";
+  expandForward() {
+    return "F-F+";
   }
 
-  expandX() {
-    return "[+FXL][-FXL][(FXL][)FXL]";
+  expandRecursively() {
+    return "[1~FXL][2~FXL][3~FXL][4~FXL][5~FXL][~FXL]";
   }
 
-  expandB() {
-    return "FXFXB";
+  expandUpward() {
+    //return "F*XFFB";
+    return "FBF*X";
   }
 
-  expandL() {
+  expandLeaf() {
     return "L";
   }
 

@@ -9,22 +9,30 @@ export class LSystem {
   turtleStack: Turtle[];
 
   constructor(eRule: ExpansionRules) {
-    this.myTurtle = new Turtle(vec3.fromValues(0, 0, 0), 
-                               vec3.fromValues(0, 1, 0), 
-                               quat.fromValues(0, 0, 0, 1), 0);
+    this.myTurtle = new Turtle(vec3.fromValues(0, 0, 0), // position 
+                               vec3.fromValues(0, 1, 0), // foward
+                               vec3.fromValues(0, 0, 1), // up
+                               vec3.fromValues(1, 0, 0), // right
+                               quat.fromValues(0, 0, 0, 1), 
+                               0, false);
     this.expansionRules = eRule;
+
     this.drawingRules = new Map();
     this.drawingRules.set("F", this.myTurtle.moveForward.bind(this.myTurtle));
     this.drawingRules.set("X", this.myTurtle.moveForward.bind(this.myTurtle));
-    this.drawingRules.set("-", this.myTurtle.rotateMinus.bind(this.myTurtle));
-    this.drawingRules.set("+", this.myTurtle.rotatePlus.bind(this.myTurtle));
-    this.drawingRules.set("(", this.myTurtle.rotateLB.bind(this.myTurtle));
-    this.drawingRules.set(")", this.myTurtle.rotateRB.bind(this.myTurtle));
     this.drawingRules.set("L", this.myTurtle.leaf.bind(this.myTurtle));
-    this.drawingRules.set("R", this.myTurtle.randomRot.bind(this.myTurtle));
-    this.drawingRules.set("O", this.myTurtle.orientUp.bind(this.myTurtle));
-    this.drawingRules.set("%", this.myTurtle.rotate1.bind(this.myTurtle));
-    this.drawingRules.set("$", this.myTurtle.rotate2.bind(this.myTurtle));
+
+    this.drawingRules.set("1", this.myTurtle.rotate1.bind(this.myTurtle));
+    this.drawingRules.set("2", this.myTurtle.rotate2.bind(this.myTurtle));
+    this.drawingRules.set("3", this.myTurtle.rotate3.bind(this.myTurtle));
+    this.drawingRules.set("4", this.myTurtle.rotate4.bind(this.myTurtle));
+    this.drawingRules.set("5", this.myTurtle.rotate5.bind(this.myTurtle));
+
+    this.drawingRules.set("+", this.myTurtle.rotatePlus.bind(this.myTurtle));
+    this.drawingRules.set("-", this.myTurtle.rotateMinus.bind(this.myTurtle));
+    this.drawingRules.set("~", this.myTurtle.rotateOut.bind(this.myTurtle));
+    this.drawingRules.set("*", this.myTurtle.rotateReset.bind(this.myTurtle));
+
     this.turtleStack = [];
   }
 
@@ -45,9 +53,9 @@ export class LSystem {
       resultAxiom = newAxiom;
     }
 
-    for (let i: number = 0; i < iterations; i++) {
-      resultAxiom = "F" + resultAxiom;
-    }
+    // for (let i: number = 0; i < iterations; i++) {
+    //   resultAxiom = "F" + resultAxiom;
+    // }
 
     return resultAxiom;
   }
@@ -56,7 +64,6 @@ export class LSystem {
   draw(iterations: number) {
     let returnData: any = [];
     let expandedAxiom: string = this.expandAxiom(iterations);
-    console.log(expandedAxiom);
 
     for (let i: number = 0; i < expandedAxiom.length; i++) {
       let currentChar: string = expandedAxiom[i];
@@ -66,7 +73,8 @@ export class LSystem {
       // If there is a drawing rule present at the current string
       if (drawingFunc) {
         // Function is either movement or rotation
-        // Movement functons return a matrix to draw, rotation returns nothing
+        // Movement functons return a matrix to draw
+        // Rotation functions returns nothing
         let possibleMatrix: any = drawingFunc();
         if (possibleMatrix) {
           data.transform = possibleMatrix;
