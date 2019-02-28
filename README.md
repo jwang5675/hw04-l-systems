@@ -55,11 +55,23 @@ Demo: https://jwang5675.github.io/hw04-l-systems/
     - Low Probability of fruits (low randomness):
     - ![](images/lowprob.png)
   - The randomness in the bonsai tree is from the turtle rotations and the chance of spawning fruit
-  - FBM and IQ cosine pallet based background to go with simple theme
-  - Rotation created curved forms
+  - Going with a very simple aesthetic to match the bonsai tree, the background is made by mixing a small amount of FBM and a light IQ cosine pallet based background. This makes a light background gradient with some fbm noise to make the background not as uniform and more 3 dimensional. 
+  - Rotations creates curved forms with the branches
 
 - GUI Elements
-  - Iterations
-  - Bark Color
-  - Leaf Color
-  - Randomness
+  - Iterations: This allows the user to specify different levels of iterations of the L-system to see how the bonsai tree grows.
+  - Bark Color: This allows the user to change the color of the bark
+    - Original
+    - ![](images/original.png)
+    - New Bark Color
+    - ![](images/bark.png)
+  - Leaf Color: This allows the user to change the color of the leaves
+    - Original
+    - ![](images/original.png)
+    - New Leaf Color
+    - ![](images/leaf.png)
+  - Randomness: This allows the user to change the randomness of the bonsai tree and how often to spawn fruits
+    - High probability of fruits (high randomness):
+    - ![](images/highprob.png)
+    - Low Probability of fruits (low randomness):
+    - ![](images/lowprob.png)
