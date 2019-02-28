@@ -57,6 +57,7 @@ Demo: https://jwang5675.github.io/hw04-l-systems/
   - The randomness in the bonsai tree is from the turtle rotations and the chance of spawning fruit
   - Going with a very simple aesthetic to match the bonsai tree, the background is made by mixing a small amount of FBM and a light IQ cosine pallet based background. This makes a light background gradient with some fbm noise to make the background not as uniform and more 3 dimensional. 
   - Rotations creates curved forms with the branches
+  - The pot and dirt are loaded from obj files and added to the scene
 
 - GUI Elements
   - Iterations: This allows the user to specify different levels of iterations of the L-system to see how the bonsai tree grows.
