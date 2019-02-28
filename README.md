@@ -36,6 +36,18 @@ Demo: https://jwang5675.github.io/hw04-l-systems/
     - L,Q moves the turtle forward and draws a leaf or a fruit
     - -,+ rotates the turtle by the local up axis with by a STATIC amount, mainly used to bend the truck of the trees into a curve
     - ~,* rotates the turtle by the local right and forward axis respectively by a STATIC + RANDOM offset based on the user input randomness
+    - Iteration 0:
+    - ![](images/itr0.png)
+    - Iteration 1:
+    - ![](images/itr1.png)
+    - Iteration 2:
+    - ![](images/itr2.png)
+    - Iteration 3:
+    - ![](images/itr3.png)
+    - Iteration 4:
+    - ![](images/itr4.png)
+    - Iteration 5:
+    - ![](images/itr5.png)
   - Contains leaves and small fruits (probability)
     - There is a small probability that the leaves evolve into fruits:
     - High probability of fruits (high randomness):
