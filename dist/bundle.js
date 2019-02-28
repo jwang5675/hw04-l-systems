@@ -6112,10 +6112,10 @@ function loadScene() {
     screenQuad = new __WEBPACK_IMPORTED_MODULE_4__geometry_ScreenQuad__["a" /* default */]();
     screenQuad.create();
     // LOAD FROM OBJ FILE
-    let cylinderString = Object(__WEBPACK_IMPORTED_MODULE_8__globals__["b" /* readTextFile */])("../resources/obj/cylinder.obj");
+    let cylinderString = Object(__WEBPACK_IMPORTED_MODULE_8__globals__["b" /* readTextFile */])("/resources/obj/cylinder.obj");
     cylinder = new __WEBPACK_IMPORTED_MODULE_5__geometry_Mesh__["a" /* default */](cylinderString, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec3 */].fromValues(0, 0, 0));
     cylinder.create();
-    let sphereString = Object(__WEBPACK_IMPORTED_MODULE_8__globals__["b" /* readTextFile */])("../resources/obj/sphere.obj");
+    let sphereString = Object(__WEBPACK_IMPORTED_MODULE_8__globals__["b" /* readTextFile */])("/resources/obj/sphere.obj");
     sphere = new __WEBPACK_IMPORTED_MODULE_5__geometry_Mesh__["a" /* default */](sphereString, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec3 */].fromValues(0, 0, 0));
     sphere.create();
     // Setup Pot VBO

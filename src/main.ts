@@ -41,11 +41,11 @@ function loadScene() {
   screenQuad.create();
 
   // LOAD FROM OBJ FILE
-  let cylinderString: string = readTextFile("../resources/obj/cylinder.obj");
+  let cylinderString: string = readTextFile("/resources/obj/cylinder.obj");
   cylinder = new Mesh(cylinderString, vec3.fromValues(0, 0, 0));
   cylinder.create();
 
-  let sphereString: string = readTextFile("../resources/obj/sphere.obj");
+  let sphereString: string = readTextFile("/resources/obj/sphere.obj");
   sphere = new Mesh(sphereString, vec3.fromValues(0, 0, 0));
   sphere.create();
 
