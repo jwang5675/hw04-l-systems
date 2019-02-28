@@ -6135,7 +6135,7 @@ function loadScene() {
     pot.setInstanceVBOsTransform(col1, col2, col3, col4, colors);
     pot.setNumInstances(1);
     // Setup dirt VBO
-    let dirtString = Object(__WEBPACK_IMPORTED_MODULE_8__globals__["b" /* readTextFile */])("../resources/obj/dirt.obj");
+    let dirtString = Object(__WEBPACK_IMPORTED_MODULE_8__globals__["b" /* readTextFile */])("https://raw.githubusercontent.com/jwang5675/hw04-l-systems/master/resources/obj/dirt.obj");
     dirt = new __WEBPACK_IMPORTED_MODULE_5__geometry_Mesh__["a" /* default */](dirtString, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["d" /* vec3 */].fromValues(0, 0, 0));
     dirt.create();
     let dirtColorArray = [0.484, 0.367, 0.258, 1];
