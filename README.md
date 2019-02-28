@@ -1,12 +1,14 @@
 # Homework 4: L-systems
 
+Jason Wang (jasonwa)
+
+Demo: https://jwang5675.github.io/hw04-l-systems/
+
+![](images/final.png)
+
 Scene Motivation:
 
 ![](images/motivation.jpg)
-
-Demo: https://jwang5675.github.io/hw03-environment-setpiece/
-
-![](images/final.png)
 
 For this assignment, you will design a set of formal grammar rules to create
 a plant life using an L-system program. Once again, you will work from a
