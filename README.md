@@ -27,7 +27,7 @@ Demo: https://jwang5675.github.io/hw04-l-systems/
   - Initial Axiom: "F*XBL"
   - Grammar:
     - F -> F-F+ ("forward expansion", represents the tree growing forward with a bend to the shape)
-    - X -> [1~FXL][2~FXL][3~FXL][4~FXL][5~FXL][~FXL] ("recursive expansion", represents the tree splitting into 6 branches)
+    - X -> [ 1 ~ F X L ] [ 2 ~ F X L ] [ 3 ~ F X L ][ 4 ~ F X L ] [ 5 ~ F X L ] [ ~ F X L ] ("recursive expansion", represents the tree splitting into 6 branches)
     - B -> FBF*X ("branch upward expansion", represents the tree growing up towards the y axis)
     - L -> (1-P)% Q, P% L ("fruit expansion", basically gives a small probability p based on the input randomness to evolve a leaf into a fruit)
   - Grows in 3D:
