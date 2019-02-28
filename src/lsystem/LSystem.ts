@@ -1,105 +1,90 @@
 import {vec3, mat4, quat} from 'gl-matrix';
 import ExpansionRules from '../lsystem/ExpansionRules';
+import DrawingRules from '../lsystem/DrawingRules';
 import Turtle from '../lsystem/Turtle';
 
 export class LSystem {
-  myTurtle: Turtle;
   expansionRules: ExpansionRules;
-  drawingRules: Map<string, any>;
-  turtleStack: Turtle[];
+  drawingRules: DrawingRules;
+  controls: any;
 
-  constructor(eRule: ExpansionRules) {
-    this.myTurtle = new Turtle(vec3.fromValues(0, 0, 0), // position 
-                               vec3.fromValues(0, 1, 0), // foward
-                               vec3.fromValues(0, 0, 1), // up
-                               vec3.fromValues(1, 0, 0), // right
-                               quat.fromValues(0, 0, 0, 1), 
-                               0, false);
-    this.expansionRules = eRule;
-
-    this.drawingRules = new Map();
-    this.drawingRules.set("F", this.myTurtle.moveForward.bind(this.myTurtle));
-    this.drawingRules.set("X", this.myTurtle.moveForward.bind(this.myTurtle));
-    this.drawingRules.set("L", this.myTurtle.leaf.bind(this.myTurtle));
-
-    this.drawingRules.set("1", this.myTurtle.rotate1.bind(this.myTurtle));
-    this.drawingRules.set("2", this.myTurtle.rotate2.bind(this.myTurtle));
-    this.drawingRules.set("3", this.myTurtle.rotate3.bind(this.myTurtle));
-    this.drawingRules.set("4", this.myTurtle.rotate4.bind(this.myTurtle));
-    this.drawingRules.set("5", this.myTurtle.rotate5.bind(this.myTurtle));
-
-    this.drawingRules.set("+", this.myTurtle.rotatePlus.bind(this.myTurtle));
-    this.drawingRules.set("-", this.myTurtle.rotateMinus.bind(this.myTurtle));
-    this.drawingRules.set("~", this.myTurtle.rotateOut.bind(this.myTurtle));
-    this.drawingRules.set("*", this.myTurtle.rotateReset.bind(this.myTurtle));
-
-    this.turtleStack = [];
+  constructor(controls: any) {
+    this.expansionRules = new ExpansionRules(controls);
+    this.drawingRules = new DrawingRules(controls);
+    this.controls = controls;
   }
 
-  expandAxiom(iterations: number) {
-    let resultAxiom: string = this.expansionRules.axiom;
+  // Returns VBO Data to populate scene with
+  getVBOData(iterations: number) {
+    let expandedAxiom = this.expansionRules.expandAxiom(iterations);
+    let dataObjs: any[] = this.drawingRules.draw(expandedAxiom);
 
-    for (let i: number = 0; i < iterations; i++) {
-      let newAxiom: string = "";
-      for (let j: number = 0; j < resultAxiom.length; j++) {
-        let currentChar: string = resultAxiom[j];
-        let expansionFunc: any = this.expansionRules.grammar.get(currentChar);
-        if (expansionFunc) {
-          newAxiom = newAxiom + expansionFunc();
-        } else {
-          newAxiom = newAxiom + currentChar;
-        }        
-      }
-      resultAxiom = newAxiom;
-    }
+    // Sets up schema for return values
+    let returnVal: any = {};
+    returnVal.cylinder = {};
+    returnVal.cylinder.color = [];
+    returnVal.cylinder.col1 = [];
+    returnVal.cylinder.col2 = [];
+    returnVal.cylinder.col3 = [];
+    returnVal.cylinder.col4 = [];
+    returnVal.sphere = {};
+    returnVal.sphere.color = [];
+    returnVal.sphere.col1 = [];
+    returnVal.sphere.col2 = [];
+    returnVal.sphere.col3 = [];
+    returnVal.sphere.col4 = [];
 
-    // for (let i: number = 0; i < iterations; i++) {
-    //   resultAxiom = "F" + resultAxiom;
-    // }
+    for (let i: number = 0; i < dataObjs.length; i++) {
+      let data: any = dataObjs[i];
+      let currChar: string = data.char;
+      let currTransform: mat4 = data.transform;
 
-    return resultAxiom;
-  }
+      let shape = currChar == "Q" ? "sphere" : "cylinder";
 
-  // Returns an array of objects and mat4s for the main function to draw
-  draw(iterations: number) {
-    let returnData: any = [];
-    let expandedAxiom: string = this.expandAxiom(iterations);
+      // Setup Column Vector VBOs
+      returnVal[shape].col1.push(currTransform[0]);
+      returnVal[shape].col1.push(currTransform[1]);
+      returnVal[shape].col1.push(currTransform[2]);
+      returnVal[shape].col1.push(currTransform[3]);
 
-    for (let i: number = 0; i < expandedAxiom.length; i++) {
-      let currentChar: string = expandedAxiom[i];
-      let drawingFunc: any = this.drawingRules.get(currentChar);
-      let data: any = {};
+      returnVal[shape].col2.push(currTransform[4]);
+      returnVal[shape].col2.push(currTransform[5]);
+      returnVal[shape].col2.push(currTransform[6]);
+      returnVal[shape].col2.push(currTransform[7]);
 
-      // If there is a drawing rule present at the current string
-      if (drawingFunc) {
-        // Function is either movement or rotation
-        // Movement functons return a matrix to draw
-        // Rotation functions returns nothing
-        let possibleMatrix: any = drawingFunc();
-        if (possibleMatrix) {
-          data.transform = possibleMatrix;
-          data.char = currentChar;
-          returnData.push(data);
-        }
-      }
+      returnVal[shape].col3.push(currTransform[8]);
+      returnVal[shape].col3.push(currTransform[9]);
+      returnVal[shape].col3.push(currTransform[10]);
+      returnVal[shape].col3.push(currTransform[11]);
 
-      if (currentChar == "[") {
-        // Add to stack case
-        this.turtleStack.push(this.myTurtle.createTurtleInstance());
-      }
+      returnVal[shape].col4.push(currTransform[12]);
+      returnVal[shape].col4.push(currTransform[13]);
+      returnVal[shape].col4.push(currTransform[14]);
+      returnVal[shape].col4.push(currTransform[15]);
 
-      if (currentChar == "]") {
-        // Remove from stack case
-        let removedTurtle: Turtle = this.turtleStack.pop();
-        if (removedTurtle) {
-          this.myTurtle.setTurtleInstance(removedTurtle);
-        } else {
-          console.log("Grammer brackets not well defined...");
-        }
+      // Setup Color VBOs
+      if (currChar == "L") {
+        // Leaf Color        
+        returnVal[shape].color.push(this.controls["Leaf R"]);
+        returnVal[shape].color.push(this.controls["Leaf G"]);
+        returnVal[shape].color.push(this.controls["Leaf B"]);
+        returnVal[shape].color.push(1);
+      } else if(currChar == "Q") {
+        // Fruit Color
+        returnVal[shape].color.push(0.878);
+        returnVal[shape].color.push(0.117);
+        returnVal[shape].color.push(0);
+        returnVal[shape].color.push(1);
+      } else {
+        // Tree Color
+        returnVal[shape].color.push(this.controls["Bark R"]);
+        returnVal[shape].color.push(this.controls["Bark G"]);
+        returnVal[shape].color.push(this.controls["Bark B"]);
+        returnVal[shape].color.push(1);
       }
     }
 
-    return returnData;
+    return returnVal;
   }
 
 }

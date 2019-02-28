@@ -1,13 +1,5 @@
 # Homework 4: L-systems
 
-Scene Motivation:
-
-![](images/motivation.jpg)
-
-Demo: https://jwang5675.github.io/hw03-environment-setpiece/
-
-![](images/final.png)
-
 For this assignment, you will design a set of formal grammar rules to create
 a plant life using an L-system program. Once again, you will work from a
 TypeScript / WebGL 2.0 base code like the one you used in homework 0. You will

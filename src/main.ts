@@ -8,9 +8,6 @@ import OpenGLRenderer from './rendering/gl/OpenGLRenderer';
 import Camera from './Camera';
 import {setGL} from './globals';
 import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
-
-// L-System specific imports
-import ExpansionRules from './lsystem/ExpansionRules';
 import LSystem from './lsystem/LSystem';
 import {readTextFile} from './globals';
 
@@ -26,11 +23,13 @@ const controls = {
   'Leaf R': 0.035,
   'Leaf G': 0.262,
   'Leaf B': 0.121,
+  'Randomness': 0.1,
 };
 
 let square: Square;
 let screenQuad: ScreenQuad;
 let cylinder: Mesh;
+let sphere: Mesh;
 let pot: Mesh;
 let dirt: Mesh;
 let time: number = 0.0;
@@ -46,15 +45,19 @@ function loadScene() {
   cylinder = new Mesh(cylinderString, vec3.fromValues(0, 0, 0));
   cylinder.create();
 
+  let sphereString: string = readTextFile("../resources/obj/sphere.obj");
+  sphere = new Mesh(sphereString, vec3.fromValues(0, 0, 0));
+  sphere.create();
+
   // Setup Pot VBO
   let potString: string = readTextFile("../resources/obj/pot.obj");
   pot = new Mesh(potString, vec3.fromValues(0, 0, 0));
   pot.create();
-  let colorsArray = [1, 1, 1, 1];
-  let col1Array = [10, 0, 0, 0];
-  let col2Array = [0, 10, 0, 0];
-  let col3Array = [0, 0, 10, 0];
-  let col4Array = [6, -8.5, 0, 1];
+  let colorsArray: number[] = [1, 1, 1, 1];
+  let col1Array: number[] = [10, 0, 0, 0];
+  let col2Array: number[] = [0, 10, 0, 0];
+  let col3Array: number[] = [0, 0, 10, 0];
+  let col4Array: number[] = [6, -8.5, 0, 1];
   let col1: Float32Array = new Float32Array(col1Array);
   let col2: Float32Array = new Float32Array(col2Array);
   let col3: Float32Array = new Float32Array(col3Array);
@@ -67,71 +70,30 @@ function loadScene() {
   let dirtString: string = readTextFile("../resources/obj/dirt.obj");
   dirt = new Mesh(dirtString, vec3.fromValues(0, 0, 0));
   dirt.create();
-  let dirtColorArray = [0.484, 0.367, 0.258, 1];
+  let dirtColorArray: number[] = [0.484, 0.367, 0.258, 1];
   colors = new Float32Array(dirtColorArray);
   dirt.setInstanceVBOsTransform(col1, col2, col3, col4, colors);
   dirt.setNumInstances(1);
 }
 
-function createLSystem() {
-  // Start of L System
+function setupLSystem() {
   if (changed) {
     changed = false;
-    let ls: LSystem = new LSystem(new ExpansionRules());
-    let data = ls.draw(controls.iterations);
-    let colorsArray = [];
-    let col1Array = [];
-    let col2Array = [];
-    let col3Array = [];
-    let col4Array = [];
-    for (let i = 0; i < data.length; i++) {
-      let currData = data[i];
-      let currTransform = currData.transform;
 
-      // push column vectors back
-      col1Array.push(currTransform[0]);
-      col1Array.push(currTransform[1]);
-      col1Array.push(currTransform[2]);
-      col1Array.push(currTransform[3]);
-
-      col2Array.push(currTransform[4]);
-      col2Array.push(currTransform[5]);
-      col2Array.push(currTransform[6]);
-      col2Array.push(currTransform[7]);
-
-      col3Array.push(currTransform[8]);
-      col3Array.push(currTransform[9]);
-      col3Array.push(currTransform[10]);
-      col3Array.push(currTransform[11]);
-
-      col4Array.push(currTransform[12]);
-      col4Array.push(currTransform[13]);
-      col4Array.push(currTransform[14]);
-      col4Array.push(currTransform[15]);
-
-      // push colors back
-      if (currData.char == "L") {
-        // Leaf Color        
-        colorsArray.push(controls["Leaf R"]);
-        colorsArray.push(controls["Leaf G"]);
-        colorsArray.push(controls["Leaf B"]);
-        colorsArray.push(1);
-      } else {
-        // Tree Color
-        colorsArray.push(controls["Bark R"]);
-        colorsArray.push(controls["Bark G"]);
-        colorsArray.push(controls["Bark B"]);
-        colorsArray.push(1);
-      }
-    }
-
-    let col1: Float32Array = new Float32Array(col1Array);
-    let col2: Float32Array = new Float32Array(col2Array);
-    let col3: Float32Array = new Float32Array(col3Array);
-    let col4: Float32Array = new Float32Array(col4Array);
-    let colors: Float32Array = new Float32Array(colorsArray);
-    cylinder.setInstanceVBOsTransform(col1, col2, col3, col4, colors);
-    cylinder.setNumInstances(data.length);
+    let ls: LSystem = new LSystem(controls);
+    let data = ls.getVBOData(controls.iterations);
+    cylinder.setInstanceVBOsTransform(new Float32Array(data["cylinder"].col1),
+                                      new Float32Array(data["cylinder"].col2), 
+                                      new Float32Array(data["cylinder"].col3),
+                                      new Float32Array(data["cylinder"].col4), 
+                                      new Float32Array(data["cylinder"].color));
+    cylinder.setNumInstances(data["cylinder"].col1.length / 4);
+    sphere.setInstanceVBOsTransform(new Float32Array(data["sphere"].col1),
+                                    new Float32Array(data["sphere"].col2), 
+                                    new Float32Array(data["sphere"].col3),
+                                    new Float32Array(data["sphere"].col4), 
+                                    new Float32Array(data["sphere"].color));
+    sphere.setNumInstances(data["sphere"].col1.length / 4);
   }
 }
 
@@ -174,6 +136,10 @@ function main() {
     function() {
       changed = true;
     }.bind(this));
+  gui.add(controls, 'Randomness', 0, 1).step(0.01).onChange(
+    function() {
+      changed = true;
+  }.bind(this));
 
   // get canvas and webgl context
   const canvas = < HTMLCanvasElement > document.getElementById('canvas');
@@ -213,12 +179,13 @@ function main() {
     instancedShader.setTime(time);
     flat.setTime(time++);
     gl.viewport(0, 0, window.innerWidth, window.innerHeight);
-    createLSystem();
+    setupLSystem();
     renderer.clear();
     renderer.render(camera, flat, [screenQuad]);
     renderer.render(camera, instancedShader, [
       square,
       cylinder,
+      sphere,
       pot,
       dirt,
     ]);

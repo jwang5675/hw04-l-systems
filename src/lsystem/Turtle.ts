@@ -8,22 +8,24 @@ export default class Turtle {
   quaternion: quat = quat.create();
   recursionDepth: number = 0;
   hasSplit: boolean;
+  controls: any;
 
-  constructor(pos: vec3, forward: vec3, up: vec3, right: vec3, q: quat, rd: number, hasSplit: boolean) {
+  constructor(pos: vec3, forward: vec3, up: vec3, right: vec3, q: quat, rd: number, hasSplit: boolean, controls: any) {
     this.position = pos;
     this.forward = forward;
     this.up = up;
     this.right = right;
     this.quaternion = q;
     this.recursionDepth = rd;
-    hasSplit = hasSplit;
+    this.hasSplit = hasSplit;
+    this.controls = controls;
   }
 
   rotateByForwardAxis(degrees: number) {
-    let q = quat.create();
+    let q: quat= quat.create();
     quat.setAxisAngle(q, this.forward, degrees * Math.PI / 180.0);
 
-    let rotationMatrix = mat4.create();
+    let rotationMatrix: mat4 = mat4.create();
     mat4.fromQuat(rotationMatrix, q);
     vec3.transformMat4(this.up, this.up, rotationMatrix);
     vec3.normalize(this.up, this.up);
@@ -35,10 +37,10 @@ export default class Turtle {
   }
 
   rotateByUpAxis(degrees: number) {
-    let q = quat.create();
+    let q: quat = quat.create();
     quat.setAxisAngle(q, this.up, degrees * Math.PI / 180.0);
 
-    let rotationMatrix = mat4.create();
+    let rotationMatrix: mat4 = mat4.create();
     mat4.fromQuat(rotationMatrix, q);
     vec3.transformMat4(this.forward, this.forward, rotationMatrix);
     vec3.normalize(this.forward, this.forward);
@@ -50,10 +52,10 @@ export default class Turtle {
   }
 
   rotateByRightAxis(degrees: number) {
-    let q = quat.create();
+    let q: quat = quat.create();
     quat.setAxisAngle(q, this.right, degrees * Math.PI / 180.0);
 
-    let rotationMatrix = mat4.create();
+    let rotationMatrix: mat4 = mat4.create();
     mat4.fromQuat(rotationMatrix, q);
     vec3.transformMat4(this.up, this.up, rotationMatrix);
     vec3.normalize(this.up, this.up);
@@ -65,8 +67,9 @@ export default class Turtle {
   }
 
   randomizeAngle(angle: number) {
-    let random: number = Math.random();
-    let offset: number = angle * 0.15;
+    let random: number = 2 * (Math.random() - 0.5);
+    let randomnessAmplitude: number = 0.15 + this.controls["Randomness"] * (0.15);
+    let offset: number = angle * randomnessAmplitude;
     return angle + offset * random;
   }
 
@@ -110,7 +113,7 @@ export default class Turtle {
     this.rotateByRightAxis(this.randomizeAngle(angle));
   }
 
-  rotateReset() {
+  rotateMore() {
     let angle: number = 135;
     this.rotateByForwardAxis(this.randomizeAngle(angle));
   }
@@ -132,7 +135,13 @@ export default class Turtle {
   leaf() {
     // move the turtle length 1 forward and returns the transformation
     vec3.add(this.position, this.position, this.forward);  
-    return this.getMatrix(vec3.fromValues(0.5, 0.5, 0.5));
+    return this.getMatrix(vec3.fromValues(0.3, 0.5, 0.3));
+  }
+
+  fruit() {
+    // move the turtle length 1 forward and returns the transformation
+    vec3.add(this.position, this.position, this.forward);  
+    return this.getMatrix(vec3.fromValues(0.2, 0.2, 0.2));
   }
 
   // Creates a turtle instance to add to the turtle stack
@@ -155,7 +164,7 @@ export default class Turtle {
     let newQuat: quat = quat.create();
     quat.copy(newQuat, this.quaternion);
  
-    return new Turtle(newPos, newFor, newUp, newRight, newQuat, this.recursionDepth, this.hasSplit);
+    return new Turtle(newPos, newFor, newUp, newRight, newQuat, this.recursionDepth, this.hasSplit, this.controls);
   }
 
   // Sets the current turtle to one popped off of the turtle stack
@@ -166,5 +175,6 @@ export default class Turtle {
     vec3.copy(this.right, turtle.right);
     quat.copy(this.quaternion, turtle.quaternion);
     this.recursionDepth = turtle.recursionDepth - 1;
+    this.controls = turtle.controls;
   }
 }
