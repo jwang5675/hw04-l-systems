@@ -3,9 +3,11 @@ class ExpansionRules {
   grammar : Map<string, any> = new Map();
 
   constructor() {
-    this.axiom = "FX";
+    this.axiom = "XBL";
     this.grammar.set("F", this.expandF);
     this.grammar.set("X", this.expandX);
+    this.grammar.set("B", this.expandB);
+    this.grammar.set("L", this.expandL);
   }
 
   expandF() {
@@ -13,7 +15,15 @@ class ExpansionRules {
   }
 
   expandX() {
-    return "[+FX][-FX]FFX";
+    return "[+FXL][-FXL][(FXL][)FXL]";
+  }
+
+  expandB() {
+    return "FXFXB";
+  }
+
+  expandL() {
+    return "L";
   }
 
 }

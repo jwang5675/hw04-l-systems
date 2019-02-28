@@ -18,8 +18,9 @@ in vec4 vs_TransformCol2;
 in vec4 vs_TransformCol3;
 in vec4 vs_TransformCol4;
 
-out vec4 fs_Col;
 out vec4 fs_Pos;
+out vec4 fs_Nor;
+out vec4 fs_Col;
 
 mat4 getTransformation() {
 	return mat4(vs_TransformCol1, vs_TransformCol2, vs_TransformCol3, vs_TransformCol4);
@@ -36,8 +37,9 @@ void main() {
 
     // gl_Position = u_ViewProj * vec4(billboardPos, 1.0);
 
-    fs_Col = vs_Col;
     fs_Pos = vs_Pos;
+    fs_Nor = vs_Nor;
+    fs_Col = vs_Col;
 
     vec4 transformedPos = getTransformation() * vs_Pos;
 

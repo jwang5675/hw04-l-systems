@@ -29,41 +29,62 @@ export default class Turtle {
   }
 
   rotateMinus() {
-    this.rotate(vec3.fromValues(0, 0, 1), -50);    
+    this.rotate(vec3.fromValues(0, 0, 1), -40);  
   }
 
   rotatePlus() {
-    this.rotate(vec3.fromValues(0, 0, 1), 50);    
+    this.rotate(vec3.fromValues(0, 0, 1), 40);    
   }
 
-  getMatrix() {
+  rotateLB() {
+    this.rotate(vec3.fromValues(1, 0, 0), -40);  
+  }
+
+  rotateRB() {
+    this.rotate(vec3.fromValues(1, 0, 0), 40);    
+  }
+
+  rotate1() {
+    this.rotate(vec3.fromValues(1, 0, 1), 30);    
+  }
+
+  rotate2() {
+    this.rotate(vec3.fromValues(1, 0, 1), -30);    
+  }
+
+  getMatrix(scale: vec3) {
     let transform: mat4 = mat4.create();
-
-    // Cannot use mat4.fromRotationTranslationScale(transform, this.quaternion, this.position, scale);
-    // Since this transformation is the reverse order of transformtions of the one we want
-    // let scaleMatrix: mat4 = mat4.create();
-    // let rotationMatrix: mat4 = mat4.create();
-    // let translateMatrix: mat4 = mat4.create();
-
-    // let scale: vec3 = vec3.fromValues(0.1, 1, 1);
-    // mat4.fromScaling(scaleMatrix, scale);
-    // mat4.fromQuat(rotationMatrix, this.quaternion);
-    // mat4.fromTranslation(translateMatrix, this.position);
-    // mat4.multiply(transform, rotationMatrix, scaleMatrix);
-    // mat4.multiply(transform, translateMatrix, transform);
-
-    mat4.fromRotationTranslationScale(transform, this.quaternion, this.position, vec3.fromValues(0.1, 1, 1));
+    mat4.fromRotationTranslationScale(transform, this.quaternion, this.position, scale);
     return transform;
   }
 
   moveForward() {
     // move the turtle length 1 forward and returns the transformation
     vec3.add(this.position, this.position, this.orientation);  
-    return this.getMatrix();
+    let depthFactor: number = (6 - this.recursionDepth) / 6;
+    return this.getMatrix(vec3.fromValues(1 * depthFactor, 1, 1 * depthFactor));
+  }
+
+  leaf() {
+    // move the turtle length 1 forward and returns the transformation
+    vec3.add(this.position, this.position, this.orientation);  
+    return this.getMatrix(vec3.fromValues(0.5, 0.5, 0.5));
+  }
+
+  randomRot() {
+    this.rotate(vec3.fromValues(0, 0, 1), 5);  
+  }
+
+  orientUp() {
+    this.orientation = vec3.fromValues(0, 1, 0);
+    // Save the current rotation in our turtle's quaternion
+    quat.rotationTo(this.quaternion, vec3.fromValues(0, 1, 0), this.orientation);
   }
 
   // Creates a turtle instance to add to the turtle stack
   createTurtleInstance() {
+    this.recursionDepth = this.recursionDepth + 1;
+
     let newPos: vec3 = vec3.create();
     vec3.copy(newPos, this.position);
 
@@ -73,7 +94,7 @@ export default class Turtle {
     let newQuat: quat = quat.create();
     quat.copy(newQuat, this.quaternion);
  
-    return new Turtle(newPos, newOri, newQuat, this.recursionDepth + 1);
+    return new Turtle(newPos, newOri, newQuat, this.recursionDepth);
   }
 
   // Sets the current turtle to one popped off of the turtle stack

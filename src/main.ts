@@ -3,6 +3,7 @@ import * as Stats from 'stats-js';
 import * as DAT from 'dat-gui';
 import Square from './geometry/Square';
 import ScreenQuad from './geometry/ScreenQuad';
+import Mesh from './geometry/Mesh';
 import OpenGLRenderer from './rendering/gl/OpenGLRenderer';
 import Camera from './Camera';
 import {setGL} from './globals';
@@ -11,14 +12,25 @@ import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
 // L-System specific imports
 import ExpansionRules from './lsystem/ExpansionRules';
 import LSystem from './lsystem/LSystem';
+import {readTextFile} from './globals';
+
+let changed: boolean = true;
 
 // Define an object with application parameters and button callbacks
 // This will be referred to by dat.GUI's functions that add GUI elements.
 const controls = {
+  iterations: 5,
+  'Bark R': 0.176,
+  'Bark G': 0.039,
+  'Bark B': 0.039,
+  'Leaf R': 0.035,
+  'Leaf G': 0.262,
+  'Leaf B': 0.121,
 };
 
 let square: Square;
 let screenQuad: ScreenQuad;
+let cylinder: Mesh;
 let time: number = 0.0;
 
 function loadScene() {
@@ -27,78 +39,72 @@ function loadScene() {
   screenQuad = new ScreenQuad();
   screenQuad.create();
 
-  // Set up instanced rendering data arrays here.
-  // This example creates a set of positional
-  // offsets and gradiated colors for a 100x100 grid
-  // of squares, even though the VBO data for just
-  // one square is actually passed to the GPU
-  // let offsetsArray = [];
-  // let colorsArray = [];
-  // let n: number = 100.0;
-  // for(let i = 0; i < n; i++) {
-  //   for(let j = 0; j < n; j++) {
-  //     offsetsArray.push(i);
-  //     offsetsArray.push(j);
-  //     offsetsArray.push(0);
+  // LOAD FROM OBJ FILE
+  let cylinderString: string = readTextFile("../resources/obj/cylinder.obj");
+  cylinder = new Mesh(cylinderString, vec3.fromValues(0, 0, 0));
+  cylinder.create();
+}
 
-  //     colorsArray.push(i / n);
-  //     colorsArray.push(j / n);
-  //     colorsArray.push(1.0);
-  //     colorsArray.push(1.0); // Alpha channel
-  //   }
-  // }
-  // let offsets: Float32Array = new Float32Array(offsetsArray);
-  // let colors: Float32Array = new Float32Array(colorsArray);
-  // square.setInstanceVBOs(offsets, colors);
-  // square.setNumInstances(n * n); // grid of "particles"
-
+function createLSystem() {
   // Start of L System
-  let ls: LSystem = new LSystem(new ExpansionRules());
-  let transformations: mat4[] = ls.draw(4);
-  let colorsArray = [];
-  let col1Array = [];
-  let col2Array = [];
-  let col3Array = [];
-  let col4Array = [];
-  for (let i = 0; i < transformations.length; i++) {
-    let currTransform = transformations[i];
+  if (changed) {
+    changed = false;
+    let ls: LSystem = new LSystem(new ExpansionRules());
+    let data = ls.draw(controls.iterations);
+    let colorsArray = [];
+    let col1Array = [];
+    let col2Array = [];
+    let col3Array = [];
+    let col4Array = [];
+    for (let i = 0; i < data.length; i++) {
+      let currData = data[i];
+      let currTransform = currData.transform;
 
-    // push column vectors back
-    col1Array.push(currTransform[0]);
-    col1Array.push(currTransform[1]);
-    col1Array.push(currTransform[2]);
-    col1Array.push(currTransform[3]);
+      // push column vectors back
+      col1Array.push(currTransform[0]);
+      col1Array.push(currTransform[1]);
+      col1Array.push(currTransform[2]);
+      col1Array.push(currTransform[3]);
 
-    col2Array.push(currTransform[4]);
-    col2Array.push(currTransform[5]);
-    col2Array.push(currTransform[6]);
-    col2Array.push(currTransform[7]);
+      col2Array.push(currTransform[4]);
+      col2Array.push(currTransform[5]);
+      col2Array.push(currTransform[6]);
+      col2Array.push(currTransform[7]);
 
-    col3Array.push(currTransform[8]);
-    col3Array.push(currTransform[9]);
-    col3Array.push(currTransform[10]);
-    col3Array.push(currTransform[11]);
+      col3Array.push(currTransform[8]);
+      col3Array.push(currTransform[9]);
+      col3Array.push(currTransform[10]);
+      col3Array.push(currTransform[11]);
 
-    col4Array.push(currTransform[12]);
-    col4Array.push(currTransform[13]);
-    col4Array.push(currTransform[14]);
-    col4Array.push(currTransform[15]);
+      col4Array.push(currTransform[12]);
+      col4Array.push(currTransform[13]);
+      col4Array.push(currTransform[14]);
+      col4Array.push(currTransform[15]);
 
-    // push colors back
-    colorsArray.push(1);
-    colorsArray.push(1);
-    colorsArray.push(1);
-    colorsArray.push(1);
+      // push colors back
+      if (currData.char == "L") {
+        // Leaf Color        
+        colorsArray.push(controls["Leaf R"]);
+        colorsArray.push(controls["Leaf G"]);
+        colorsArray.push(controls["Leaf B"]);
+        colorsArray.push(1);
+      } else {
+        // Tree Color
+        colorsArray.push(controls["Bark R"]);
+        colorsArray.push(controls["Bark G"]);
+        colorsArray.push(controls["Bark B"]);
+        colorsArray.push(1);
+      }
+    }
+
+    let col1: Float32Array = new Float32Array(col1Array);
+    let col2: Float32Array = new Float32Array(col2Array);
+    let col3: Float32Array = new Float32Array(col3Array);
+    let col4: Float32Array = new Float32Array(col4Array);
+    let colors: Float32Array = new Float32Array(colorsArray);
+    cylinder.setInstanceVBOsTransform(col1, col2, col3, col4, colors);
+    cylinder.setNumInstances(data.length);
   }
-
-  let col1: Float32Array = new Float32Array(col1Array);
-  let col2: Float32Array = new Float32Array(col2Array);
-  let col3: Float32Array = new Float32Array(col3Array);
-  let col4: Float32Array = new Float32Array(col4Array);
-  let colors: Float32Array = new Float32Array(colorsArray);
-  square.setInstanceVBOsTest(col1, col2, col2, col4, colors);
-  square.setNumInstances(transformations.length); // grid of "particles"
-
 }
 
 function main() {
@@ -112,10 +118,38 @@ function main() {
 
   // Add controls to the gui
   const gui = new DAT.GUI();
+  gui.add(controls, 'iterations', 0, 5).step(1).onChange(
+    function() {
+      changed = true;
+    }.bind(this));
+  gui.add(controls, 'Bark R', 0, 1).step(0.01).onChange(
+    function() {
+      changed = true;
+    }.bind(this));
+  gui.add(controls, 'Bark G', 0, 1).step(0.01).onChange(
+    function() {
+      changed = true;
+    }.bind(this));
+  gui.add(controls, 'Bark B', 0, 1).step(0.01).onChange(
+    function() {
+      changed = true;
+    }.bind(this));
+  gui.add(controls, 'Leaf R', 0, 1).step(0.01).onChange(
+    function() {
+      changed = true;
+    }.bind(this));
+  gui.add(controls, 'Leaf G', 0, 1).step(0.01).onChange(
+    function() {
+      changed = true;
+    }.bind(this));
+  gui.add(controls, 'Leaf B', 0, 1).step(0.01).onChange(
+    function() {
+      changed = true;
+    }.bind(this));
 
   // get canvas and webgl context
-  const canvas = <HTMLCanvasElement> document.getElementById('canvas');
-  const gl = <WebGL2RenderingContext> canvas.getContext('webgl2');
+  const canvas = < HTMLCanvasElement > document.getElementById('canvas');
+  const gl = < WebGL2RenderingContext > canvas.getContext('webgl2');
   if (!gl) {
     alert('WebGL 2 not supported!');
   }
@@ -126,12 +160,13 @@ function main() {
   // Initial call to load scene
   loadScene();
 
-  const camera = new Camera(vec3.fromValues(0, 50, 0), vec3.fromValues(0, 0, 0));
+  const camera = new Camera(vec3.fromValues(0, 35, 70), vec3.fromValues(0, 35, 0));
 
   const renderer = new OpenGLRenderer(canvas);
   renderer.setClearColor(0.2, 0.2, 0.2, 1);
-  gl.enable(gl.BLEND);
-  gl.blendFunc(gl.ONE, gl.ONE); // Additive blending
+  gl.enable(gl.DEPTH_TEST);
+  // gl.enable(gl.BLEND);
+  // gl.blendFunc(gl.ONE, gl.ONE); // Additive blending
 
   const instancedShader = new ShaderProgram([
     new Shader(gl.VERTEX_SHADER, require('./shaders/instanced-vert.glsl')),
@@ -150,10 +185,12 @@ function main() {
     instancedShader.setTime(time);
     flat.setTime(time++);
     gl.viewport(0, 0, window.innerWidth, window.innerHeight);
+    createLSystem();
     renderer.clear();
     renderer.render(camera, flat, [screenQuad]);
     renderer.render(camera, instancedShader, [
       square,
+      cylinder,
     ]);
     stats.end();
 

@@ -18,6 +18,13 @@ export class LSystem {
     this.drawingRules.set("X", this.myTurtle.moveForward.bind(this.myTurtle));
     this.drawingRules.set("-", this.myTurtle.rotateMinus.bind(this.myTurtle));
     this.drawingRules.set("+", this.myTurtle.rotatePlus.bind(this.myTurtle));
+    this.drawingRules.set("(", this.myTurtle.rotateLB.bind(this.myTurtle));
+    this.drawingRules.set(")", this.myTurtle.rotateRB.bind(this.myTurtle));
+    this.drawingRules.set("L", this.myTurtle.leaf.bind(this.myTurtle));
+    this.drawingRules.set("R", this.myTurtle.randomRot.bind(this.myTurtle));
+    this.drawingRules.set("O", this.myTurtle.orientUp.bind(this.myTurtle));
+    this.drawingRules.set("%", this.myTurtle.rotate1.bind(this.myTurtle));
+    this.drawingRules.set("$", this.myTurtle.rotate2.bind(this.myTurtle));
     this.turtleStack = [];
   }
 
@@ -38,18 +45,23 @@ export class LSystem {
       resultAxiom = newAxiom;
     }
 
+    for (let i: number = 0; i < iterations; i++) {
+      resultAxiom = "F" + resultAxiom;
+    }
+
     return resultAxiom;
   }
 
-  // Returns an array of mat4s for the main function to draw
+  // Returns an array of objects and mat4s for the main function to draw
   draw(iterations: number) {
-    let returnTransformations: mat4[] = [];
+    let returnData: any = [];
     let expandedAxiom: string = this.expandAxiom(iterations);
     console.log(expandedAxiom);
 
     for (let i: number = 0; i < expandedAxiom.length; i++) {
       let currentChar: string = expandedAxiom[i];
       let drawingFunc: any = this.drawingRules.get(currentChar);
+      let data: any = {};
 
       // If there is a drawing rule present at the current string
       if (drawingFunc) {
@@ -57,7 +69,9 @@ export class LSystem {
         // Movement functons return a matrix to draw, rotation returns nothing
         let possibleMatrix: any = drawingFunc();
         if (possibleMatrix) {
-          returnTransformations.push(possibleMatrix);
+          data.transform = possibleMatrix;
+          data.char = currentChar;
+          returnData.push(data);
         }
       }
 
@@ -77,7 +91,7 @@ export class LSystem {
       }
     }
 
-    return returnTransformations;
+    return returnData;
   }
 
 }
