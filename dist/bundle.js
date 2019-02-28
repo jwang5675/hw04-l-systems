@@ -16962,6 +16962,7 @@ class DrawingRules {
         this.drawingRules = new Map();
         this.drawingRules.set("F", this.myTurtle.moveForward.bind(this.myTurtle));
         this.drawingRules.set("X", this.myTurtle.moveForward.bind(this.myTurtle));
+        this.drawingRules.set("B", this.myTurtle.moveForward.bind(this.myTurtle));
         this.drawingRules.set("L", this.myTurtle.leaf.bind(this.myTurtle));
         this.drawingRules.set("Q", this.myTurtle.fruit.bind(this.myTurtle));
         this.drawingRules.set("1", this.myTurtle.rotate1.bind(this.myTurtle));
